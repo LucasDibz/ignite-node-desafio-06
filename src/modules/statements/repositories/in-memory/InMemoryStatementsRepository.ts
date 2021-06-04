@@ -17,35 +17,40 @@ export class InMemoryStatementsRepository implements IStatementsRepository {
     return statement;
   }
 
-  async findStatementOperation({ statement_id, user_id }: IGetStatementOperationDTO): Promise<Statement | undefined> {
-    return this.statements.find(operation => (
-      operation.id === statement_id &&
-      operation.user_id === user_id
-    ));
+  async findStatementOperation({
+    statement_id,
+    user_id,
+  }: IGetStatementOperationDTO): Promise<Statement | undefined> {
+    return this.statements.find(
+      (operation) =>
+        operation.id === statement_id && operation.user_id === user_id
+    );
   }
 
-  async getUserBalance({ user_id, with_statement = false }: IGetBalanceDTO):
-    Promise<
-      { balance: number } | { balance: number, statement: Statement[] }
-    >
-  {
-    const statement = this.statements.filter(operation => operation.user_id === user_id);
+  async getUserBalance({
+    user_id,
+    with_statement = false,
+  }: IGetBalanceDTO): Promise<
+    { balance: number } | { balance: number; statement: Statement[] }
+  > {
+    const statement = this.statements.filter(
+      (operation) => operation.user_id === user_id
+    );
 
     const balance = statement.reduce((acc, operation) => {
-      if (operation.type === 'deposit') {
+      if (operation.type === "deposit") {
         return acc + operation.amount;
-      } else {
-        return acc - operation.amount;
       }
-    }, 0)
+      return acc - operation.amount;
+    }, 0);
 
     if (with_statement) {
       return {
         statement,
-        balance
-      }
+        balance,
+      };
     }
 
-    return { balance }
+    return { balance };
   }
 }
